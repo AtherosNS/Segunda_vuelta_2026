@@ -390,8 +390,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const pctAusentismo = 100 - pctParticipacion;
     const totalVotos = totales.totalVotosEmitidos || 0;
     
-    // Calcular total de electores hábiles
-    const totalElectores = pctParticipacion > 0 ? Math.round(totalVotos / (pctParticipacion / 100)) : 0;
+    // Determinar total de electores hábiles (Padrón Oficial Fijo para ámbitos principales para evitar fluctuaciones por redondeo)
+    let totalElectores = 0;
+    const selectedAmbito = selectAmbito ? selectAmbito.value : '';
+    const selectedDep = selectDepartamento ? selectDepartamento.value : '';
+
+    if (!selectedAmbito && !selectedDep) {
+      totalElectores = 27325440; // Consolidado General (Todo el Mundo)
+    } else if (selectedAmbito === "1" && !selectedDep) {
+      totalElectores = 26114654; // Perú (Nacional)
+    } else if (selectedAmbito === "2" && !selectedDep) {
+      totalElectores = 1210786; // Extranjero (Exterior)
+    } else {
+      totalElectores = pctParticipacion > 0 ? Math.round(totalVotos / (pctParticipacion / 100)) : 0;
+    }
     const totalAusentes = Math.max(0, totalElectores - totalVotos);
 
     lblPartVotaronPct.textContent = formatPercent(pctParticipacion);

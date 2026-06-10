@@ -1878,6 +1878,22 @@ input:checked + .slider:before {
     align-items: stretch;
   }
 
+  .stat-group {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.15rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .stat-val.highlight {
+    font-size: 1.15rem !important;
+  }
+
+  .plain-metric-item {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
   .matchup-divider {
     height: 1px;
     width: 100%;
@@ -2185,3 +2201,78 @@ input:checked + .slider:before {
     height: 70px;
   }
 }
+
+/* ==========================================================================
+   CRÉDITOS DE DESARROLLO (ESTILO SUTIL Y ELEGANTE)
+   ========================================================================== */
+.app-credits {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 0 0.5rem 0;
+  margin-top: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  opacity: 0.45;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  position: relative;
+  user-select: none;
+}
+
+.app-credits::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 1px;
+  background: rgba(15, 23, 42, 0.08);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-credits:hover {
+  opacity: 0.85;
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.app-credits:hover::before {
+  width: 60px;
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.designer-name {
+  font-weight: 700;
+  color: var(--color-info); /* Azul elegante */
+  position: relative;
+  display: inline-block;
+  margin-left: 0.2rem;
+  transition: color 0.3s ease;
+}
+
+.designer-name::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--color-info);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-credits:hover .designer-name::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
