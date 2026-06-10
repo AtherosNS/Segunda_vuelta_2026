@@ -1669,7 +1669,20 @@ input:checked + .slider:before {
 
 @media (max-width: 768px) {
   body {
-    padding: 1.5rem 0.5rem;
+    padding: 1rem 0.35rem !important;
+  }
+
+  .container {
+    gap: 1rem !important;
+  }
+
+  .bento-panel {
+    padding: 1.2rem 0.75rem !important;
+    border-radius: 18px !important;
+  }
+
+  .bento-dashboard {
+    gap: 1rem !important;
   }
 
   h1 {
@@ -1796,7 +1809,7 @@ input:checked + .slider:before {
   }
 
   .matchup-center-diff {
-    min-width: 110px !important;
+    min-width: 100px !important;
     padding: 0 !important;
     background: transparent !important;
     box-shadow: none !important;

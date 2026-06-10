@@ -341,10 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let lider = '';
     let liderColor = '';
     if (votosJP > votosFP) {
-      lider = 'Roberto Sánchez (Juntos por el Perú)';
+      lider = 'Roberto Sánchez';
       liderColor = 'var(--color-jp)';
     } else if (votosFP > votosJP) {
-      lider = 'Keiko Fujimori (Fuerza Popular)';
+      lider = 'Keiko Fujimori';
       liderColor = 'var(--color-fp)';
     } else {
       lider = 'Empate técnico';
