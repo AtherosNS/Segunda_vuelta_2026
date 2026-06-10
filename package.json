@@ -1,0 +1,14 @@
+{
+  "name": "votacion-onpe-diff",
+  "version": "1.0.0",
+  "description": "Visualizador en tiempo real de diferencia de votos ONPE Segunda Vuelta 2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados de Segunda Vuelta Electoral Perú 2026</title>
+  <meta name="description" content="Dashboard electoral formal y en tiempo real de la Segunda Elección Presidencial ONPE 2026. Compara Keiko Fujimori vs Roberto Sánchez y visualiza la diferencia exacta de votos.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Fondo Ambientado Pastel Suave -->
+  <div class="bg-glow bg-glow-left"></div>
+  <div class="bg-glow bg-glow-right"></div>
+
+  <div class="container">
+    <!-- Centro de Mando Integrado (Cabecera + Controles) -->
+    <header class="command-center">
+      <div class="header-main-row">
+        <div class="header-logo" id="header-logo-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+            <circle cx="18" cy="18" r="3"></circle>
+            <circle cx="6" cy="6" r="3"></circle>
+            <circle cx="18" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <line x1="6" y1="9" x2="6" y2="15"></line>
+            <line x1="9" y1="6" x2="15" y2="6"></line>
+            <line x1="18" y1="9" x2="18" y2="15"></line>
+            <line x1="9" y1="18" x2="15" y2="18"></line>
+          </svg>
+          <span>ONPE DATA PROXY</span>
+        </div>
+        <div class="header-title-block">
+          <h1 id="main-title">Segunda Elección Presidencial 2026</h1>
+          <p class="subtitle">Escrutinio General y Diferencia de Votos Oficiales</p>
+        </div>
+      </div>
+      
+      <!-- Barra de Filtros y Navegación Integrada -->
+      <div class="filters-toolbar">
+        <div class="filters-grid-toolbar">
+          <div class="filter-item" id="group-ambito">
+            <label for="select-ambito">Ámbito</label>
+            <select id="select-ambito" class="toolbar-select">
+              <option value="">Todo el Mundo (Consolidado)</option>
+              <option value="1">Perú (Nacional)</option>
+              <option value="2">Extranjero (Exterior)</option>
+            </select>
+          </div>
+          <div class="filter-item hidden" id="group-departamento">
+            <label for="select-departamento" id="label-departamento">Departamento</label>
+            <select id="select-departamento" class="toolbar-select">
+              <option value="">-- Región --</option>
+            </select>
+          </div>
+          <div class="filter-item hidden" id="group-provincia">
+            <label for="select-provincia" id="label-provincia">Provincia</label>
+            <select id="select-provincia" class="toolbar-select">
+              <option value="">-- Provincia --</option>
+            </select>
+          </div>
+          <div class="filter-item hidden" id="group-distrito">
+            <label for="select-distrito" id="label-distrito">Distrito</label>
+            <select id="select-distrito" class="toolbar-select">
+              <option value="">-- Distrito --</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Breadcrumbs Integrados -->
+        <div class="toolbar-breadcrumbs">
+          <div id="geo-breadcrumb" class="geo-breadcrumb">
+            <span class="breadcrumb-item" id="breadcrumb-root">Mundo 🗳️</span>
+          </div>
+          <button id="btn-clear-filters" class="btn-clear hidden">
+            Restablecer global ×
+          </button>
+        </div>
+      </div>
+
+      <!-- Navegación de Pestañas (Tab Switcher) -->
+      <nav class="dashboard-nav-tabs">
+        <button class="tab-btn active" data-tab="tab-presidenciales">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M18 21v-2a4 4 0 0 0-4-4H10a4 4 0 0 0-4 4v2"></path>
+          </svg>
+          Resultados Presidenciales
+        </button>
+        <button class="tab-btn" data-tab="tab-participacion">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Participación Ciudadana
+        </button>
+        <button class="tab-btn" data-tab="tab-actas">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          Estado de Actas
+        </button>
+      </nav>
+    </header>
+
+    <!-- Estado de Carga -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Cargando información electoral oficial de la ONPE...</p>
+    </div>
+
+    <!-- Mensaje de Sin Datos -->
+    <div id="nodata-message" class="nodata-card hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nodata-icon"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <div class="nodata-content">
+        <h3>Resultados no disponibles aún</h3>
+        <p id="nodata-text">No se registran actas computadas ni procesadas para esta ubicación geográfica.</p>
+      </div>
+    </div>
+
+    <!-- Mensaje de Error -->
+    <div id="error-message" class="error-card hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="error-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <div class="error-content">
+        <h3>Fallo de conexión</h3>
+        <p id="error-text">No se pudo recuperar los datos de la ONPE. Verifica si el servidor proxy local se encuentra activo.</p>
+      </div>
+      <button id="btn-error-retry" class="btn btn-secondary">Reintentar conexión</button>
+    </div>
+
+    <!-- Dashboard Bento Grid (Asimétrico y Unificado) -->
+    <main id="main-dashboard" class="bento-dashboard hidden">
+      
+      <!-- PESTAÑA 1: RESULTADOS PRESIDENCIALES -->
+      <div id="tab-presidenciales" class="tab-section-content active">
+        <div class="bento-grid-section">
+          
+          <!-- PANEL PRINCIPAL: Matchup Cara a Cara (Ancho 62%) -->
+          <section class="bento-panel hero-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Enfrentamiento Presidencial Directo</span>
+            </div>
+            
+            <div class="matchup-container">
+              <!-- Perfiles de Candidatos + Diferencia Central -->
+              <div class="matchup-header">
+                <!-- Perfil Keiko (Izquierda) -->
+                <div class="matchup-profile left">
+                  <div class="candidate-img-block fp-avatar-glow">
+                    <img src="https://resultadosegundavuelta.onpe.gob.pe/assets/img-reales/candidatos/10001088.png" alt="Keiko Fujimori" class="candidate-img">
+                    <img src="https://resultadosegundavuelta.onpe.gob.pe/assets/img-reales/partidos/00000008.png" alt="Fuerza Popular Logo" class="candidate-party-logo">
+                  </div>
+                  <div class="matchup-meta">
+                    <h3 class="candidate-name">Keiko Fujimori</h3>
+                    <span class="party-badge fp-badge">Fuerza Popular</span>
+                  </div>
+                </div>
+
+                <!-- Bloque de Diferencia -->
+                <div class="matchup-center-diff">
+                  <div class="diff-lead-label" id="diff-lead-wrapper">Lidera: <span id="lead-candidate-name">--</span></div>
+                  <div class="diff-votes-container">
+                    <div class="diff-votes" id="diff-votes-value">--</div>
+                    <div class="diff-label">Votos de Diferencia</div>
+                  </div>
+                  <div class="diff-percentage" id="diff-percentage-value">(--%)</div>
+                </div>
+
+                <!-- Perfil Roberto (Derecha) -->
+                <div class="matchup-profile right">
+                  <div class="candidate-img-block jp-avatar-glow">
+                    <img src="https://resultadosegundavuelta.onpe.gob.pe/assets/img-reales/candidatos/16002918.png" alt="Roberto Sánchez" class="candidate-img">
+                    <img src="https://resultadosegundavuelta.onpe.gob.pe/assets/img-reales/partidos/00000010.png" alt="Juntos por el Perú Logo" class="candidate-party-logo">
+                  </div>
+                  <div class="matchup-meta">
+                    <h3 class="candidate-name">Roberto Sánchez</h3>
+                    <span class="party-badge jp-badge">Juntos por el Perú</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Escala/Balanza Visual de Precisión -->
+              <div class="matchup-balance-section">
+                <div class="diff-visualizer">
+                  <div class="candidate-indicator left" id="candidato-left-indicator">
+                    <span class="indicator-party">FP</span>
+                    <span class="indicator-pct" id="indicator-left-pct">--%</span>
+                  </div>
+
+                  <div class="balance-bar-container">
+                    <div class="balance-bar-center-mark"></div>
+                    <div class="balance-bar-fill" id="balance-bar-fill"></div>
+                  </div>
+
+                  <div class="candidate-indicator right" id="candidato-right-indicator">
+                    <span class="indicator-pct" id="indicator-right-pct">--%</span>
+                    <span class="indicator-party">JP</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tabla Comparativa de Votos Válidos -->
+              <div class="matchup-stats-grid">
+                <!-- Keiko Stats -->
+                <div class="matchup-candidate-stats left" id="stats-kf-box">
+                  <div class="stat-group">
+                    <span class="stat-lbl">Votos Válidos</span>
+                    <span class="stat-val" id="kf-votes">--</span>
+                  </div>
+                  <div class="stat-group">
+                    <span class="stat-lbl">% Votos Válidos</span>
+                    <span class="stat-val highlight fp-color" id="kf-pct-valid">--%</span>
+                  </div>
+                  <div class="stat-group">
+                    <span class="stat-lbl">% Votos Emitidos</span>
+                    <span class="stat-val" id="kf-pct-emitted">--%</span>
+                  </div>
+                  <div class="progress-container">
+                    <div class="progress-bar fp-bar" id="kf-progress-bar"></div>
+                  </div>
+                </div>
+
+                <div class="matchup-divider"></div>
+
+                <!-- Roberto Stats -->
+                <div class="matchup-candidate-stats right" id="stats-rs-box">
+                  <div class="stat-group">
+                    <span class="stat-lbl">Votos Válidos</span>
+                    <span class="stat-val" id="rs-votes">--</span>
+                  </div>
+                  <div class="stat-group">
+                    <span class="stat-lbl">% Votos Válidos</span>
+                    <span class="stat-val highlight jp-color" id="rs-pct-valid">--%</span>
+                  </div>
+                  <div class="stat-group">
+                    <span class="stat-lbl">% Votos Emitidos</span>
+                    <span class="stat-val" id="rs-pct-emitted">--%</span>
+                  </div>
+                  <div class="progress-container">
+                    <div class="progress-bar jp-bar" id="rs-progress-bar"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PANEL LATERAL: Estado de Actas y Estadísticas (Ancho 38%) -->
+          <section class="bento-panel info-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Cómputo & Avance General</span>
+            </div>
+            
+            <!-- Actas Segmentadas (Confianza) -->
+            <div class="actas-progress-section">
+              <div class="actas-header">
+                <div>
+                  <span class="actas-label">Progreso de Actas:</span>
+                  <span class="actas-value" id="actas-pct">--%</span>
+                </div>
+                <div class="actas-counts">
+                  <span id="actas-contabilizadas">--</span> de <span id="actas-totales">--</span>
+                </div>
+              </div>
+              <div class="progress-container-large-segmented">
+                <div class="progress-segment segment-counted" id="segment-counted" style="width: 0%;"></div>
+                <div class="progress-segment segment-observed" id="segment-observed" style="width: 0%;"></div>
+                <div class="progress-segment segment-pending" id="segment-pending" style="width: 0%;"></div>
+              </div>
+              <div class="segmented-legend">
+                <span class="legend-item"><span class="legend-dot dot-counted"></span>Contabilizadas: <span id="legend-counted-val">--%</span></span>
+                <span class="legend-item"><span class="legend-dot dot-observed"></span>Observadas (JEE): <span id="legend-observed-val">--%</span></span>
+                <span class="legend-item"><span class="legend-dot dot-pending"></span>Pendientes: <span id="legend-pending-val">--%</span></span>
+              </div>
+            </div>
+
+            <!-- Lista Vertical de Métricas -->
+            <div class="sidebar-metrics-list">
+              <div class="sidebar-metric-item">
+                <div class="metric-icon-wrapper info-style">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="metric-svg-icon">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div class="metric-details">
+                  <span class="metric-lbl">Participación Ciudadana</span>
+                  <span class="metric-val" id="stat-participacion">--%</span>
+                </div>
+              </div>
+              
+              <div class="sidebar-metric-item">
+                <div class="metric-icon-wrapper success-style">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="metric-svg-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 14 14"></polyline>
+                  </svg>
+                </div>
+                <div class="metric-details">
+                  <span class="metric-lbl">Total Votos Válidos</span>
+                  <span class="metric-val" id="stat-votos-validos">--</span>
+                </div>
+              </div>
+
+              <div class="sidebar-metric-item">
+                <div class="metric-icon-wrapper primary-style">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="metric-svg-icon">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </div>
+                <div class="metric-details">
+                  <span class="metric-lbl">Total Votos Emitidos</span>
+                  <span class="metric-val" id="stat-votos-emitidos">--</span>
+                </div>
+              </div>
+
+              <div class="sidebar-metric-item">
+                <div class="metric-icon-wrapper warning-style">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="metric-svg-icon">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <div class="metric-details">
+                  <span class="metric-lbl">Actas Observadas</span>
+                  <span class="metric-val" id="stat-actas-observadas">--</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Panel de Evolución Histórica (Ancho Completo) -->
+        <section class="bento-panel chart-panel" style="margin-top: 1.5rem;">
+          <div class="panel-header">
+            <span class="panel-tag">Evolución del Voto Presidencial (%)</span>
+          </div>
+          <div class="chart-container-wrapper">
+            <div id="evolution-chart-container" class="evolution-chart-container">
+              <!-- Renderizado dinámico del SVG -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Panel de Macro-Regiones (IPSOS) -->
+        <section id="macro-regiones-mount" class="bento-panel macro-regiones-panel" style="margin-top: 1.5rem;">
+          <!-- Se renderiza dinámicamente desde app.js -->
+        </section>
+      </div>
+
+      <!-- PESTAÑA 2: PARTICIPACIÓN CIUDADANA -->
+      <div id="tab-participacion" class="tab-section-content hidden">
+        <div class="bento-grid-section">
+          
+          <!-- PANEL PRINCIPAL (Medidor Gráfico) -->
+          <section class="bento-panel hero-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Estructura de Participación Ciudadana</span>
+            </div>
+            
+            <div class="turnout-container">
+              <!-- Medidor Circular Gauge -->
+              <div class="gauge-center-row">
+                <div class="turnout-circular-gauge" id="turnout-circular-gauge">
+                  <div class="turnout-circular-inner">
+                    <span class="gauge-value" id="gauge-turnout-pct">--%</span>
+                    <span class="gauge-label">Participación</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="turnout-visual-row">
+                <div class="turnout-side left-side">
+                  <span class="turnout-lbl-side">Acudieron a Votar</span>
+                  <span class="turnout-val-side success-color" id="lbl-part-votaron-pct">--%</span>
+                </div>
+                
+                <!-- Barra 100% split de Turnout -->
+                <div class="turnout-bar-container">
+                  <div class="turnout-bar-fill" id="part-balance-fill"></div>
+                </div>
+                
+                <div class="turnout-side right-side">
+                  <span class="turnout-lbl-side">Ausentismo (No Votó)</span>
+                  <span class="turnout-val-side warning-color" id="lbl-part-novotaron-pct">--%</span>
+                </div>
+              </div>
+              
+              <div class="turnout-description">
+                La barra de participación ilustra la división del padrón electoral. En verde se representa la asistencia real en los locales de sufragio, mientras que en gris se visualiza el ausentismo ciudadano.
+              </div>
+
+              <!-- Tabla de Participación Oficial -->
+              <div class="actas-official-table-wrapper" style="margin-top: 1rem;">
+                <table class="actas-official-table">
+                  <thead>
+                    <tr>
+                      <th>Concepto de Padrón</th>
+                      <th class="text-right">Cantidad</th>
+                      <th class="text-right">Porcentaje</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="table-dot dot-counted"></span> Ciudadanos que Votaron (Participación)</td>
+                      <td id="part-tbl-votaron" class="text-right font-numeric">--</td>
+                      <td id="part-tbl-votaron-pct" class="text-right font-numeric">--%</td>
+                    </tr>
+                    <tr>
+                      <td><span class="table-dot dot-observed"></span> Ausentismo Electoral (No Votaron)</td>
+                      <td id="part-tbl-ausentes" class="text-right font-numeric">--</td>
+                      <td id="part-tbl-ausentes-pct" class="text-right font-numeric">--%</td>
+                    </tr>
+                    <tr class="table-total-row">
+                      <td>Total de Electores Hábiles (Padrón)</td>
+                      <td id="part-tbl-electores" class="text-right font-numeric">--</td>
+                      <td class="text-right font-numeric">100.000%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- PANEL LATERAL (Sin card, letras normales y grandes) -->
+          <section class="plain-sidebar-panel">
+            <div class="panel-header" style="margin-bottom: 1.5rem;">
+              <span class="panel-tag">Resumen de Escrutinio</span>
+            </div>
+
+            <div class="sidebar-metrics-list plain-metrics-style">
+              <div class="plain-metric-item">
+                <span class="plain-metric-lbl">Electores Hábiles (Padrón)</span>
+                <span class="plain-metric-val" id="part-electores">--</span>
+                <span class="plain-metric-sub">Población electoral total convocada</span>
+              </div>
+              
+              <div class="plain-metric-item">
+                <span class="plain-metric-lbl">Ciudadanos que Votaron</span>
+                <span class="plain-metric-val success-color" id="part-votaron">--</span>
+                <span class="plain-metric-sub" id="part-votaron-sub">-- de asistencia</span>
+              </div>
+
+              <div class="plain-metric-item">
+                <span class="plain-metric-lbl">Ausentismo Electoral</span>
+                <span class="plain-metric-val warning-color" id="part-novotaron">--</span>
+                <span class="plain-metric-sub" id="part-novotaron-sub">-- de inasistencia</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- PESTAÑA 3: ESTADO DE ACTAS -->
+      <div id="tab-actas" class="tab-section-content hidden">
+        <div class="bento-grid-section">
+          
+          <!-- PANEL PRINCIPAL (Detalle de Actas y Tabla Oficial) -->
+          <section class="bento-panel hero-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Escrutinio & Estado de Actas</span>
+            </div>
+            
+            <div class="turnout-container" style="padding: 0;">
+              <!-- Medidor Circular Gauge -->
+              <div class="gauge-center-row">
+                <div class="turnout-circular-gauge actas-gauge-style" id="actas-circular-gauge">
+                  <div class="turnout-circular-inner">
+                    <span class="gauge-value" id="gauge-actas-pct">--%</span>
+                    <span class="gauge-label">Contabilizadas</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="actas-progress-section" style="margin-bottom: 0; width: 100%;">
+                <div class="actas-header">
+                  <div>
+                    <span class="actas-label">Actas Contabilizadas:</span>
+                    <span class="actas-value" id="actas-tab-pct">--%</span>
+                  </div>
+                </div>
+                <div class="progress-container-large-segmented">
+                  <div class="progress-segment segment-counted" id="actas-tab-segment-counted" style="width: 0%;"></div>
+                  <div class="progress-segment segment-observed" id="actas-tab-segment-observed" style="width: 0%;"></div>
+                  <div class="progress-segment segment-pending" id="actas-tab-segment-pending" style="width: 0%;"></div>
+                </div>
+                <div class="segmented-legend">
+                  <span class="legend-item"><span class="legend-dot dot-counted"></span>Contabilizadas: <span id="actas-tab-legend-counted">--%</span></span>
+                  <span class="legend-item"><span class="legend-dot dot-observed"></span>Observadas (JEE): <span id="actas-tab-legend-observed">--%</span></span>
+                  <span class="legend-item"><span class="legend-dot dot-pending"></span>Pendientes: <span id="actas-tab-legend-pending">--%</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de Actas Detallada -->
+            <div class="actas-official-table-wrapper">
+              <table class="actas-official-table">
+                <thead>
+                  <tr>
+                    <th>Estado de Acta</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">Porcentaje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="table-dot dot-counted"></span> Contabilizadas</td>
+                    <td id="actas-tab-tbl-contabilizadas" class="text-right font-numeric">--</td>
+                    <td id="actas-tab-tbl-contabilizadas-pct" class="text-right font-numeric">--%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="table-dot dot-observed"></span> Enviadas a JEE (Observadas)</td>
+                    <td id="actas-tab-tbl-observadas" class="text-right font-numeric">--</td>
+                    <td id="actas-tab-tbl-observadas-pct" class="text-right font-numeric">--%</td>
+                  </tr>
+                  <tr>
+                    <td><span class="table-dot dot-pending"></span> Pendientes de Procesamiento</td>
+                    <td id="actas-tab-tbl-pendientes" class="text-right font-numeric">--</td>
+                    <td id="actas-tab-tbl-pendientes-pct" class="text-right font-numeric">--%</td>
+                  </tr>
+                  <tr class="table-total-row">
+                    <td>Total de Actas</td>
+                    <td id="actas-tab-tbl-totales" class="text-right font-numeric">--</td>
+                    <td class="text-right font-numeric">100.000%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- PANEL LATERAL (Sin card, glosario con estilo editorial limpio) -->
+          <section class="plain-sidebar-panel">
+            <div class="panel-header" style="margin-bottom: 1.5rem;">
+              <span class="panel-tag">Glosario de Actas</span>
+            </div>
+            
+            <div class="actas-info-text plain-glossary-style">
+              <div class="plain-glossary-item">
+                <h4 class="plain-glossary-title">Actas Contabilizadas</h4>
+                <p class="plain-glossary-desc">
+                  Actas procesadas cuyas cifras han sido incorporadas formalmente a los resultados del escrutinio nacional e internacional.
+                </p>
+              </div>
+              <div class="plain-glossary-item">
+                <h4 class="plain-glossary-title">Enviadas a JEE (Observadas)</h4>
+                <p class="plain-glossary-desc">
+                  Actas que contienen inconsistencias formales, firmas faltantes, o votos impugnados, derivadas a los Jurados Electorales Especiales para su resolución.
+                </p>
+              </div>
+              <div class="plain-glossary-item">
+                <h4 class="plain-glossary-title">Pendientes de Procesamiento</h4>
+                <p class="plain-glossary-desc">
+                  Actas físicas que aún se encuentran en tránsito de recogida, digitalización o en espera en las oficinas descentralizadas de la ONPE.
+                </p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Controles de Refresco e Información de Actualización -->
+    <footer class="app-controls">
+      <div class="update-info">
+        <span class="update-pulse" id="update-pulse"></span>
+        <span class="update-text" id="update-time-text">Actualizado: --</span>
+      </div>
+      <div class="actions">
+        <div class="auto-refresh-control">
+          <label class="switch">
+            <input type="checkbox" id="chk-auto-refresh" checked>
+            <span class="slider round"></span>
+          </label>
+          <span class="auto-refresh-label" id="refresh-timer-text">Auto-refrescar en 60s</span>
+        </div>
+        <button id="btn-refresh" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Actualizar Ahora
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
