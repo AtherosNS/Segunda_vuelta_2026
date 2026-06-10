@@ -1875,6 +1875,7 @@ input:checked + .slider:before {
   .matchup-stats-grid {
     flex-direction: column;
     gap: 1.2rem;
+    align-items: stretch;
   }
 
   .matchup-divider {
