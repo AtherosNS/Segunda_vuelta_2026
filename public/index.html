@@ -379,6 +379,87 @@
 
         </div>
 
+        <!-- Panel de Reconciliación y Cuadre de Votos / Actas -->
+        <section class="bento-panel reconciliation-panel" style="margin-top: 1.5rem;">
+          <div class="panel-header">
+            <span class="panel-tag">Reconciliación y Cuadre de Votos / Actas</span>
+          </div>
+          <div class="reconciliation-grid">
+            <!-- BLOQUE 1: RECONCILIACIÓN DE VOTOS -->
+            <div class="reconciliation-col">
+              <div class="reconciliation-col-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="col-header-icon color-info-svg">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <h4>Control de Votos (Ciudadanos)</h4>
+              </div>
+              <div class="recon-metric-main">
+                <span class="recon-val-large" id="recon-votos-emitidos">--</span>
+                <span class="recon-lbl-sub">Personas que Votaron (Votos Emitidos)</span>
+              </div>
+              <div class="recon-stats-list">
+                <div class="recon-stat-item">
+                  <span class="recon-stat-lbl">Suma Votos FP + JP (Votos Válidos)</span>
+                  <span class="recon-stat-val font-mono" id="recon-votos-validos-sum">--</span>
+                </div>
+                <div class="recon-stat-sub-item">
+                  <span class="recon-stat-lbl"><span class="legend-dot fp-dot"></span>Fuerza Popular (Keiko)</span>
+                  <span class="recon-stat-val font-mono fp-color-text" id="recon-votos-fp">--</span>
+                </div>
+                <div class="recon-stat-sub-item">
+                  <span class="recon-stat-lbl"><span class="legend-dot jp-dot"></span>Juntos por el Perú (Roberto)</span>
+                  <span class="recon-stat-val font-mono jp-color-text" id="recon-votos-jp">--</span>
+                </div>
+                <div class="recon-stat-item highlight-warn">
+                  <span class="recon-stat-lbl">Votos por Computar (Est. en Actas Faltantes)</span>
+                  <span class="recon-stat-val font-mono" id="recon-votos-faltantes">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="reconciliation-divider"></div>
+
+            <!-- BLOQUE 2: RECONCILIACIÓN DE ACTAS -->
+            <div class="reconciliation-col">
+              <div class="reconciliation-col-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="col-header-icon color-success-svg">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <h4>Control de Actas Electorales</h4>
+              </div>
+              <div class="recon-metric-main">
+                <span class="recon-val-large" id="recon-actas-procesadas">--</span>
+                <span class="recon-lbl-sub">Total Actas Electorales</span>
+              </div>
+              <div class="recon-stats-list">
+                <div class="recon-stat-item">
+                  <span class="recon-stat-lbl">Actas Computadas / Procesadas</span>
+                  <span class="recon-stat-val font-mono" id="recon-actas-computadas">--</span>
+                </div>
+                <div class="recon-stat-sub-item">
+                  <span class="recon-stat-lbl"><span class="legend-dot dot-counted"></span>Contabilizadas</span>
+                  <span class="recon-stat-val font-mono" id="recon-actas-contabilizadas">--</span>
+                </div>
+                <div class="recon-stat-sub-item">
+                  <span class="recon-stat-lbl"><span class="legend-dot dot-observed"></span>Observadas (JEE)</span>
+                  <span class="recon-stat-val font-mono" id="recon-actas-observadas">--</span>
+                </div>
+                <div class="recon-stat-item highlight-warn">
+                  <span class="recon-stat-lbl">Actas por Procesar (Pendientes)</span>
+                  <span class="recon-stat-val font-mono" id="recon-actas-faltantes">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Panel de Evolución Histórica (Ancho Completo) -->
         <section class="bento-panel chart-panel" style="margin-top: 1.5rem;">
           <div class="panel-header">

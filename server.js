@@ -216,8 +216,15 @@ async function updateGlobalHistory() {
         const jpPct = jpData ? jpData.porcentajeVotosValidos : 0;
         
         if (globalHistory.length === 0 || globalHistory[globalHistory.length - 1].progress !== progress) {
+          const nowHist = new Date();
+          const day = String(nowHist.getDate()).padStart(2, '0');
+          const month = String(nowHist.getMonth() + 1).padStart(2, '0');
+          const hours = String(nowHist.getHours()).padStart(2, '0');
+          const minutes = String(nowHist.getMinutes()).padStart(2, '0');
+          const formattedTimestamp = `${day}/${month} ${hours}:${minutes}`;
+
           globalHistory.push({
-            timestamp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+            timestamp: formattedTimestamp,
             progress: progress,
             fp: fpPct,
             jp: jpPct

@@ -73,6 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const statVotosEmitidos = document.getElementById('stat-votos-emitidos');
   const statActasObservadas = document.getElementById('stat-actas-observadas');
 
+  // Elementos del DOM - Reconciliación
+  const reconVotosEmitidos = document.getElementById('recon-votos-emitidos');
+  const reconVotosValidosSum = document.getElementById('recon-votos-validos-sum');
+  const reconVotosFP = document.getElementById('recon-votos-fp');
+  const reconVotosJP = document.getElementById('recon-votos-jp');
+  const reconVotosFaltantes = document.getElementById('recon-votos-faltantes');
+
+  const reconActasProcesadas = document.getElementById('recon-actas-procesadas');
+  const reconActasComputadas = document.getElementById('recon-actas-computadas');
+  const reconActasContabilizadas = document.getElementById('recon-actas-contabilizadas');
+  const reconActasObservadas = document.getElementById('recon-actas-observadas');
+  const reconActasFaltantes = document.getElementById('recon-actas-faltantes');
+
   // Elementos del DOM - Pestaña 2: Participación Ciudadana
   const lblPartVotaronPct = document.getElementById('lbl-part-votaron-pct');
   const lblPartNoVotaronPct = document.getElementById('lbl-part-novotaron-pct');
@@ -384,6 +397,30 @@ document.addEventListener('DOMContentLoaded', () => {
     statActasObservadas.textContent = formatNumber(totales.enviadasJee);
 
     // ==========================================
+    // RENDERIZAR CUADRE Y RECONCILIACIÓN
+    // ==========================================
+    const votosFP = fpData.totalVotosValidos || 0;
+    const votosJP = jpData.totalVotosValidos || 0;
+    const votosValidosSum = votosFP + votosJP;
+    const totalVotosEmitidos = totales.totalVotosEmitidos || 0;
+
+    const avgVotesPerAct = totales.contabilizadas > 0 ? totalVotosEmitidos / totales.contabilizadas : 0;
+    const actasFaltantesCount = totales.totalActas - totales.contabilizadas;
+    const votosFaltantes = Math.round(avgVotesPerAct * actasFaltantesCount);
+
+    if (reconVotosEmitidos) reconVotosEmitidos.textContent = formatNumber(totalVotosEmitidos);
+    if (reconVotosValidosSum) reconVotosValidosSum.textContent = formatNumber(votosValidosSum);
+    if (reconVotosFP) reconVotosFP.textContent = formatNumber(votosFP);
+    if (reconVotosJP) reconVotosJP.textContent = formatNumber(votosJP);
+    if (reconVotosFaltantes) reconVotosFaltantes.textContent = formatNumber(votosFaltantes);
+
+    if (reconActasProcesadas) reconActasProcesadas.textContent = formatNumber(totales.totalActas);
+    if (reconActasComputadas) reconActasComputadas.textContent = formatNumber(totales.contabilizadas + (totales.enviadasJee || 0));
+    if (reconActasContabilizadas) reconActasContabilizadas.textContent = formatNumber(totales.contabilizadas);
+    if (reconActasObservadas) reconActasObservadas.textContent = formatNumber(totales.enviadasJee || 0);
+    if (reconActasFaltantes) reconActasFaltantes.textContent = formatNumber(totales.pendientesJee || 0);
+
+    // ==========================================
     // RENDERIZAR PESTAÑA 2: PARTICIPACIÓN CIUDADANA
     // ==========================================
     const pctParticipacion = totales.participacionCiudadana || 0;
@@ -500,12 +537,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Generar puntos de la línea de tiempo (convergencia histórica + captura real-time)
     // El primer punto es a las 19:00h (hora del primer flash), convergiendo hacia los resultados actuales
     const baseTimeline = [
-      { progress: 10, fp: pctFP + 1.200, jp: pctJP - 1.200, label: "19:00" },
-      { progress: 25, fp: pctFP + 0.800, jp: pctJP - 0.800, label: "21:00" },
-      { progress: 40, fp: pctFP + 0.400, jp: pctJP - 0.400, label: "23:00" },
-      { progress: 55, fp: pctFP - 0.150, jp: jpData.porcentajeVotosValidos + 0.150, label: "02:00" },
-      { progress: 70, fp: pctFP - 0.350, jp: jpData.porcentajeVotosValidos + 0.350, label: "05:00" },
-      { progress: 85, fp: pctFP - 0.150, jp: jpData.porcentajeVotosValidos + 0.150, label: "08:00" }
+      { progress: 10, fp: pctFP + 1.200, jp: pctJP - 1.200, label: "07/06 19:00" },
+      { progress: 25, fp: pctFP + 0.800, jp: pctJP - 0.800, label: "07/06 21:00" },
+      { progress: 40, fp: pctFP + 0.400, jp: pctJP - 0.400, label: "07/06 23:00" },
+      { progress: 55, fp: pctFP - 0.150, jp: jpData.porcentajeVotosValidos + 0.150, label: "08/06 02:00" },
+      { progress: 70, fp: pctFP - 0.350, jp: jpData.porcentajeVotosValidos + 0.350, label: "08/06 05:00" },
+      { progress: 85, fp: pctFP - 0.150, jp: jpData.porcentajeVotosValidos + 0.150, label: "08/06 08:00" }
     ];
 
     // Quedarse solo con los puntos base cuyo progreso sea menor al actual
@@ -528,7 +565,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Obtener hora actual para el último nodo (convergencia final)
     const now = new Date(totales.fechaActualizacion || Date.now());
-    const currentTimeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const currentTimeStr = `${day}/${month} ${hours}:${minutes}`;
     points.push({
       progress: pctContabilizadas,
       fp: pctFP,
