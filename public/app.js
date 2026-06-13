@@ -343,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try {
       const queryParams = getFilterQueryParams();
+      queryParams._t = Date.now();
       const queryString = new URLSearchParams(queryParams).toString();
       const url = `/api/resultados?${queryString}`;
       

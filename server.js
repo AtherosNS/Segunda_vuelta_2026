@@ -51,6 +51,9 @@ function buildOnpeUrl(endpoint, query) {
 // Endpoint API que actúa como Proxy para resultados filtrados
 app.get('/api/resultados', async (req, res) => {
   try {
+    // Evitar almacenamiento en caché a nivel de navegador y CDN intermedias
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    
     // Asegurar que la caché y el historial estén actualizados (no bloqueante si ya hay datos)
     await getOrUpdateCache();
 
