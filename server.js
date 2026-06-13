@@ -51,16 +51,16 @@ function buildOnpeUrl(endpoint, query) {
 // Endpoint API que actúa como Proxy para resultados filtrados
 app.get('/api/resultados', async (req, res) => {
   try {
-    // Asegurar que la caché y el historial estén actualizados
+    // Asegurar que la caché y el historial estén actualizados (no bloqueante si ya hay datos)
     await getOrUpdateCache();
 
     const urlTotals = buildOnpeUrl('totales', req.query);
     const urlPart = buildOnpeUrl('participantes', req.query);
 
-    // Realizar ambas peticiones en paralelo
+    // Realizar ambas peticiones en paralelo (con un timeout de 5 segundos)
     const [resTotals, resPart] = await Promise.all([
-      fetch(urlTotals, { headers: ONPE_HEADERS }),
-      fetch(urlPart, { headers: ONPE_HEADERS })
+      fetch(urlTotals, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) }),
+      fetch(urlPart, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) })
     ]);
 
     // Verificar si el recurso no existe en este nivel (204 No Content)
@@ -116,7 +116,7 @@ app.get('/api/ubigeos/departamentos', async (req, res) => {
       return res.status(400).json({ success: false, error: "Falta el parámetro 'ambito'" });
     }
     const url = `https://resultadosegundavuelta.onpe.gob.pe/presentacion-backend/ubigeos/departamentos?idEleccion=10&idAmbitoGeografico=${ambito}`;
-    const response = await fetch(url, { headers: ONPE_HEADERS });
+    const response = await fetch(url, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) });
     const text = await response.text();
 
     if (text.trim().startsWith('<')) {
@@ -139,7 +139,7 @@ app.get('/api/ubigeos/provincias', async (req, res) => {
       return res.status(400).json({ success: false, error: "Faltan parámetros 'ambito' o 'dep'" });
     }
     const url = `https://resultadosegundavuelta.onpe.gob.pe/presentacion-backend/ubigeos/provincias?idEleccion=10&idAmbitoGeografico=${ambito}&idUbigeoDepartamento=${dep}`;
-    const response = await fetch(url, { headers: ONPE_HEADERS });
+    const response = await fetch(url, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) });
     const text = await response.text();
 
     if (text.trim().startsWith('<')) {
@@ -162,7 +162,7 @@ app.get('/api/ubigeos/distritos', async (req, res) => {
       return res.status(400).json({ success: false, error: "Faltan parámetros 'ambito' o 'prov'" });
     }
     const url = `https://resultadosegundavuelta.onpe.gob.pe/presentacion-backend/ubigeos/distritos?idEleccion=10&idAmbitoGeografico=${ambito}&idUbigeoProvincia=${prov}`;
-    const response = await fetch(url, { headers: ONPE_HEADERS });
+    const response = await fetch(url, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) });
     const text = await response.text();
 
     if (text.trim().startsWith('<')) {
@@ -199,8 +199,8 @@ async function updateGlobalHistory() {
     const urlPart = `https://resultadosegundavuelta.onpe.gob.pe/presentacion-backend/resumen-general/participantes?idEleccion=10&tipoFiltro=eleccion`;
     
     const [resTotals, resPart] = await Promise.all([
-      fetch(urlTotals, { headers: ONPE_HEADERS }),
-      fetch(urlPart, { headers: ONPE_HEADERS })
+      fetch(urlTotals, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) }),
+      fetch(urlPart, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(5000) })
     ]);
     
     if (resTotals.ok && resPart.ok) {
@@ -248,8 +248,8 @@ async function updateRegionalCache(runInParallel = false) {
       const urlPart = `https://resultadosegundavuelta.onpe.gob.pe/presentacion-backend/resumen-general/participantes?idEleccion=10&tipoFiltro=ubigeo_nivel_01&idAmbitoGeografico=1&idUbigeoDepartamento=${ubigeo}`;
       
       const [resTotals, resPart] = await Promise.all([
-        fetch(urlTotals, { headers: ONPE_HEADERS }),
-        fetch(urlPart, { headers: ONPE_HEADERS })
+        fetch(urlTotals, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(3000) }),
+        fetch(urlPart, { headers: ONPE_HEADERS, signal: AbortSignal.timeout(3000) })
       ]);
       
       if (resTotals.status === 204 || resPart.status === 204) {
@@ -310,18 +310,19 @@ async function updateRegionalCache(runInParallel = false) {
   }
 }
 
-// Función auxiliar para inicializar/actualizar caché e historial bajo demanda
+// Función auxiliar para inicializar/actualizar caché e historial bajo demanda (Stale-While-Revalidate)
 async function getOrUpdateCache() {
   const now = Date.now();
   
   const needsRegional = cachedRegiones.length === 0 || (now - lastCacheUpdate > 180000);
   const needsHistory = globalHistory.length === 0 || (now - lastHistoryUpdate > 120000);
   
-  const promises = [];
+  const backgroundPromises = [];
+  const blockingPromises = [];
   
   if (needsRegional) {
     if (!cacheUpdatePromise) {
-      const runInParallel = !!process.env.VERCEL;
+      const runInParallel = true;
       cacheUpdatePromise = updateRegionalCache(runInParallel).then(() => {
         lastCacheUpdate = Date.now();
         cacheUpdatePromise = null;
@@ -330,7 +331,12 @@ async function getOrUpdateCache() {
         console.error("Error actualizando cache regional:", err.message);
       });
     }
-    promises.push(cacheUpdatePromise);
+    // Solo bloqueamos el request si la caché está completamente vacía (carga inicial en frío)
+    if (cachedRegiones.length === 0) {
+      blockingPromises.push(cacheUpdatePromise);
+    } else {
+      backgroundPromises.push(cacheUpdatePromise);
+    }
   }
   
   if (needsHistory) {
@@ -343,11 +349,18 @@ async function getOrUpdateCache() {
         console.error("Error actualizando historial global:", err.message);
       });
     }
-    promises.push(historyUpdatePromise);
+    // Solo bloqueamos el request si el historial está completamente vacío (carga inicial en frío)
+    if (globalHistory.length === 0) {
+      blockingPromises.push(historyUpdatePromise);
+    } else {
+      backgroundPromises.push(historyUpdatePromise);
+    }
   }
   
-  if (promises.length > 0) {
-    await Promise.all(promises);
+  // Si la caché o el historial están vacíos, bloqueamos y esperamos a que carguen (reducido a máx 3s por timeout de fetch).
+  // Si ya tiene datos previos, respondemos inmediatamente con datos viejos (stale) mientras refrescamos en background.
+  if (blockingPromises.length > 0) {
+    await Promise.all(blockingPromises);
   }
 }
 
@@ -361,7 +374,7 @@ if (!process.env.VERCEL) {
     setTimeout(async () => {
       await updateGlobalHistory();
       lastHistoryUpdate = Date.now();
-      await updateRegionalCache(false);
+      await updateRegionalCache(true);
       lastCacheUpdate = Date.now();
     }, 1000); // Ejecutar primer ciclo después de 1s
     
@@ -371,7 +384,7 @@ if (!process.env.VERCEL) {
     }, 120000); // Refrescar historial cada 2 minutos
     
     setInterval(async () => {
-      await updateRegionalCache(false);
+      await updateRegionalCache(true);
       lastCacheUpdate = Date.now();
     }, 180000); // Refrescar regional cada 3 minutos
   });

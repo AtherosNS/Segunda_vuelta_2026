@@ -30,14 +30,8 @@
         <div class="header-logo" id="header-logo-container">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
-            <circle cx="18" cy="18" r="3"></circle>
-            <circle cx="6" cy="6" r="3"></circle>
-            <circle cx="18" cy="6" r="3"></circle>
-            <circle cx="6" cy="18" r="3"></circle>
-            <line x1="6" y1="9" x2="6" y2="15"></line>
-            <line x1="9" y1="6" x2="15" y2="6"></line>
-            <line x1="18" y1="9" x2="18" y2="15"></line>
-            <line x1="9" y1="18" x2="15" y2="18"></line>
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
           </svg>
           <span>ONPE DATA - 2026</span>
         </div>
@@ -402,7 +396,24 @@
               </div>
               <div class="recon-stats-list">
                 <div class="recon-stat-item">
-                  <span class="recon-stat-lbl">Suma Votos FP + JP (Votos Válidos)</span>
+                  <span class="recon-stat-lbl">
+                    Suma Votos FP + JP (Votos Válidos)
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge success">VOTOS VALIDADOS</span>
+                          <h5>Votos Efectivos</h5>
+                        </div>
+                        <div class="popover-body">
+                          Votos emitidos directamente por los partidos en competencia. Son la base sobre la cual se calculan los porcentajes oficiales de cada candidato.
+                        </div>
+                        <div class="popover-footer">
+                          Excluye votos nulos, en blanco e impugnados.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-votos-validos-sum">--</span>
                 </div>
                 <div class="recon-stat-sub-item">
@@ -414,13 +425,31 @@
                   <span class="recon-stat-val font-mono jp-color-text" id="recon-votos-jp">--</span>
                 </div>
                 <div class="recon-stat-item highlight-warn">
-                  <span class="recon-stat-lbl">Votos por Computar (Est. en Actas Faltantes)</span>
+                  <span class="recon-stat-lbl">
+                    Votos por Computar (Est. en Actas Faltantes)
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge warning">PROYECCIÓN</span>
+                          <h5>Votos Estimados</h5>
+                        </div>
+                        <div class="popover-body">
+                          Proyección del volumen de votos que entrarán al conteo general cuando se procese el 100% de las actas de votación.
+                        </div>
+                        <div class="popover-formula">
+                          Fórmula: <i>Promedio Votos por Acta × Actas Faltantes</i>
+                        </div>
+                        <div class="popover-footer">
+                          Calculado en tiempo real según la participación actual.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-votos-faltantes">--</span>
                 </div>
               </div>
             </div>
-
-            <div class="reconciliation-divider"></div>
 
             <!-- BLOQUE 2: RECONCILIACIÓN DE ACTAS -->
             <div class="reconciliation-col">
@@ -440,37 +469,165 @@
               </div>
               <div class="recon-stats-list">
                 <div class="recon-stat-item">
-                  <span class="recon-stat-lbl">Actas Computadas / Procesadas</span>
+                  <span class="recon-stat-lbl">
+                    Actas Computadas / Procesadas
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge info">PROCESAMIENTO</span>
+                          <h5>Actas Ingresadas</h5>
+                        </div>
+                        <div class="popover-body">
+                          Total de actas de sufragio físicas que han sido recibidas y grabadas digitalmente en el centro de cómputo informático de la ONPE.
+                        </div>
+                        <div class="popover-footer">
+                          Equivale a: Contabilizadas + Observadas.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-actas-computadas">--</span>
                 </div>
                 <div class="recon-stat-sub-item">
-                  <span class="recon-stat-lbl"><span class="legend-dot dot-counted"></span>Contabilizadas</span>
+                  <span class="recon-stat-lbl">
+                    <span class="legend-dot dot-counted"></span>Contabilizadas
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge success">APROBADO</span>
+                          <h5>Actas Sumadas</h5>
+                        </div>
+                        <div class="popover-body">
+                          Actas válidas libres de observaciones numéricas o impugnaciones legales y cuyos votos ya forman parte del cómputo oficial de los partidos.
+                        </div>
+                        <div class="popover-footer">
+                          Base del cómputo para definir al ganador.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-actas-contabilizadas">--</span>
                 </div>
                 <div class="recon-stat-sub-item">
-                  <span class="recon-stat-lbl"><span class="legend-dot dot-observed"></span>Observadas (JEE)</span>
+                  <span class="recon-stat-lbl">
+                    <span class="legend-dot dot-observed"></span>Observadas (JEE)
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge danger">EN REVISIÓN</span>
+                          <h5>Impugnadas o Con Error</h5>
+                        </div>
+                        <div class="popover-body">
+                          Actas enviadas al Jurado Electoral Especial (JEE) por presentar inconsistencias como firmas faltantes, tachaduras o error de suma.
+                        </div>
+                        <div class="popover-footer">
+                          Sujetas a resolución legal y depuración de votos.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-actas-observadas">--</span>
                 </div>
                 <div class="recon-stat-item highlight-warn">
-                  <span class="recon-stat-lbl">Actas por Procesar (Pendientes)</span>
+                  <span class="recon-stat-lbl">
+                    Actas por Procesar (Pendientes)
+                    <span class="info-bubble">
+                      ⓘ
+                      <div class="rich-popover">
+                        <div class="popover-header">
+                          <span class="popover-badge neutral">EN TRÁNSITO</span>
+                          <h5>Actas Faltantes</h5>
+                        </div>
+                        <div class="popover-body">
+                          Actas físicas de las mesas de votación que aún no han sido recibidas por la oficina descentralizada o están en cola de digitación.
+                        </div>
+                        <div class="popover-footer">
+                          Pendientes de ingreso y procesamiento.
+                        </div>
+                      </div>
+                    </span>
+                  </span>
                   <span class="recon-stat-val font-mono" id="recon-actas-faltantes">--</span>
                 </div>
               </div>
             </div>
+
           </div>
         </section>
 
-        <!-- Panel de Evolución Histórica (Ancho Completo) -->
-        <section class="bento-panel chart-panel" style="margin-top: 1.5rem;">
-          <div class="panel-header">
-            <span class="panel-tag">Evolución del Voto Presidencial (%)</span>
-          </div>
-          <div class="chart-container-wrapper">
-            <div id="evolution-chart-container" class="evolution-chart-container">
-              <!-- Renderizado dinámico del SVG -->
+        <!-- Panel de Gráficos de Análisis y Proyección (Dos Columnas en la misma fila) -->
+        <div class="charts-analysis-row" style="margin-top: 1.5rem;">
+          <!-- Gráfico de Trayectoria Histórica (Izquierda, más ancho) -->
+          <section class="bento-panel chart-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Evolución del Voto Presidencial (%)</span>
             </div>
-          </div>
-        </section>
+            <div class="chart-container-wrapper">
+              <div id="evolution-chart-container" class="evolution-chart-container">
+                <!-- Se renderiza dinámicamente desde CanvasJS -->
+              </div>
+            </div>
+          </section>
+
+          <!-- Gráfico de Proyección al 100% (Derecha, más estrecho) -->
+          <section class="bento-panel projection-panel">
+            <div class="panel-header">
+              <span class="panel-tag">Proyección al 100% (Imputación Geográfica)</span>
+            </div>
+            
+            <!-- Contenedor del Gráfico con Texto Central Flotante -->
+            <div class="proj-chart-wrapper" style="position: relative; width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; margin: 0.5rem 0;">
+              <div id="proj-canvasjs-container" style="height: 100%; width: 100%;"></div>
+              <div class="proj-center-text" style="position: absolute; text-align: center; pointer-events: none; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 120px;">
+                <span id="proj-winner-name" style="font-family: var(--font-title); font-size: 0.95rem; font-weight: 900; line-height: 1.15; color: var(--text-primary); text-transform: uppercase;">--</span>
+                <span id="proj-winner-lbl" style="font-size: 0.58rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px;">Proyectado</span>
+              </div>
+            </div>
+
+            <div class="recon-stats-list" style="margin-top: 1.2rem;">
+              <div class="recon-stat-item">
+                <span class="recon-stat-lbl">FP (Keiko) Proyectado</span>
+                <span class="recon-stat-val font-mono fp-color-text" id="proj-pct-fp">--%</span>
+              </div>
+              <div class="recon-stat-sub-item">
+                <span class="recon-stat-lbl">Votos Proyectados</span>
+                <span class="recon-stat-val font-mono" id="proj-votes-fp">--</span>
+              </div>
+              <div class="recon-stat-item">
+                <span class="recon-stat-lbl">JP (Roberto) Proyectado</span>
+                <span class="recon-stat-val font-mono jp-color-text" id="proj-pct-jp">--%</span>
+              </div>
+              <div class="recon-stat-sub-item">
+                <span class="recon-stat-lbl">Votos Proyectados</span>
+                <span class="recon-stat-val font-mono" id="proj-votes-jp">--</span>
+              </div>
+              <div class="recon-stat-item highlight-info">
+                <span class="recon-stat-lbl">
+                  Bolsón de Actas Pendientes
+                  <span class="info-bubble">
+                    ⓘ
+                    <div class="rich-popover">
+                      <div class="popover-header">
+                        <span class="popover-badge info">MÉTODO</span>
+                        <h5>Imputación Geográfica</h5>
+                      </div>
+                      <div class="popover-body">
+                        Calcula el resultado proyectado al 100% estimando los votos de las actas pendientes de cada departamento según sus preferencias locales reales, mitigando el sesgo de avance geográfico.
+                      </div>
+                      <div class="popover-footer">
+                        Indica el departamento con mayor volumen de actas pendientes de procesar.
+                      </div>
+                    </div>
+                  </span>
+                </span>
+                <span class="recon-stat-val font-mono" id="proj-pending-pocket">--</span>
+              </div>
+            </div>
+          </section>
+        </div>
 
         <!-- Panel de Macro-Regiones (IPSOS) -->
         <section id="macro-regiones-mount" class="bento-panel macro-regiones-panel" style="margin-top: 1.5rem;">
@@ -730,6 +887,7 @@
     </footer>
   </div>
 
+  <script src="canvasjs.min.js"></script>
   <script src="app.js"></script>
 </body>
 

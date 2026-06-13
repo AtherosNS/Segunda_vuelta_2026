@@ -86,6 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const reconActasObservadas = document.getElementById('recon-actas-observadas');
   const reconActasFaltantes = document.getElementById('recon-actas-faltantes');
 
+  // Elementos del DOM - Proyección Estadística
+  const projWinnerName = document.getElementById('proj-winner-name');
+  const projWinnerLbl = document.getElementById('proj-winner-lbl');
+  const projPctFp = document.getElementById('proj-pct-fp');
+  const projVotesFp = document.getElementById('proj-votes-fp');
+  const projPctJp = document.getElementById('proj-pct-jp');
+  const projVotesJp = document.getElementById('proj-votes-jp');
+  const projPendingPocket = document.getElementById('proj-pending-pocket');
+  const projCanvasjsContainer = document.getElementById('proj-canvasjs-container');
+
   // Elementos del DOM - Pestaña 2: Participación Ciudadana
   const lblPartVotaronPct = document.getElementById('lbl-part-votaron-pct');
   const lblPartNoVotaronPct = document.getElementById('lbl-part-novotaron-pct');
@@ -149,6 +159,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const formatPercent = (num) => {
     return `${Number(num).toFixed(3)}%`;
+  };
+
+  const runGeographicImputationProjection = (regiones, totales, fpData, jpData) => {
+    if (!regiones || regiones.length === 0) {
+      return null;
+    }
+
+    const currentFPVotes = fpData.totalVotosValidos || 0;
+    const currentJPVotes = jpData.totalVotosValidos || 0;
+    const currentValidVotes = currentFPVotes + currentJPVotes;
+
+    const nationalContabilizadas = totales.contabilizadas || 0;
+    const nationalVotosEmitidos = totales.totalVotosEmitidos || 0;
+    const nationalAvgVotesPerAct = nationalContabilizadas > 0 ? nationalVotosEmitidos / nationalContabilizadas : 0;
+    
+    const nationalFPPct = currentValidVotes > 0 ? currentFPVotes / currentValidVotes : 0.5;
+    const nationalJPPct = currentValidVotes > 0 ? currentJPVotes / currentValidVotes : 0.5;
+
+    let projectedFPVotes = currentFPVotes;
+    let projectedJPVotes = currentJPVotes;
+
+    let maxPendingActs = 0;
+    let pocketDeptoName = "Ninguno";
+
+    const UBIGEO_DEPTO_NAMES = {
+      '010000': 'Amazonas', '020000': 'Áncash', '030000': 'Apurímac', '040000': 'Arequipa',
+      '050000': 'Ayacucho', '060000': 'Cajamarca', '070000': 'Cusco', '080000': 'Huánuco',
+      '090000': 'Huancavelica', '100000': 'Junín', '110000': 'Ica', '120000': 'La Libertad',
+      '130000': 'Lambayeque', '140000': 'Lima', '150000': 'Loreto', '160000': 'Madre de Dios',
+      '170000': 'Moquegua', '180000': 'Pasco', '190000': 'Piura', '200000': 'Puno',
+      '210000': 'San Martín', '220000': 'Tacna', '230000': 'Tumbes', '240000': 'Callao',
+      '250000': 'Ucayali'
+    };
+
+    regiones.forEach(r => {
+      const actasTotal = r.actas_total || 0;
+      const actasCont = r.actas_contabilizadas || 0;
+      const actasPending = Math.max(0, actasTotal - actasCont);
+
+      if (actasPending > maxPendingActs) {
+        maxPendingActs = actasPending;
+        pocketDeptoName = UBIGEO_DEPTO_NAMES[r.ubigeo] || r.ubigeo;
+      }
+
+      if (actasPending > 0) {
+        const votesFP = r.candidatos.A.votos || 0;
+        const votesJP = r.candidatos.B.votos || 0;
+        const votesValid = votesFP + votesJP;
+
+        let deptoFPPct = nationalFPPct;
+        let deptoJPPct = nationalJPPct;
+
+        if (votesValid > 0) {
+          deptoFPPct = votesFP / votesValid;
+          deptoJPPct = votesJP / votesValid;
+        }
+
+        const deptoVotesPerAct = actasCont > 0 ? votesValid / actasCont : nationalAvgVotesPerAct;
+        const projectedPendingVotes = actasPending * deptoVotesPerAct;
+
+        projectedFPVotes += projectedPendingVotes * deptoFPPct;
+        projectedJPVotes += projectedPendingVotes * deptoJPPct;
+      }
+    });
+
+    const totalProjectedValidos = projectedFPVotes + projectedJPVotes;
+    const fpProjPct = totalProjectedValidos > 0 ? (projectedFPVotes / totalProjectedValidos) * 100 : 50;
+    const jpProjPct = totalProjectedValidos > 0 ? (projectedJPVotes / totalProjectedValidos) * 100 : 50;
+
+    return {
+      fpProjPct: fpProjPct,
+      jpProjPct: jpProjPct,
+      votesFPProj: Math.round(projectedFPVotes),
+      votesJPProj: Math.round(projectedJPVotes),
+      pocketDepto: maxPendingActs > 0 ? `${pocketDeptoName} (${maxPendingActs} actas)` : "Ninguno"
+    };
   };
 
   // Obtener los parámetros de consulta actuales basados en los dropdowns
@@ -399,9 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // RENDERIZAR CUADRE Y RECONCILIACIÓN
     // ==========================================
-    const votosFP = fpData.totalVotosValidos || 0;
-    const votosJP = jpData.totalVotosValidos || 0;
-    const votosValidosSum = votosFP + votosJP;
+    const votosValidosSum = (votosFP || 0) + (votosJP || 0);
     const totalVotosEmitidos = totales.totalVotosEmitidos || 0;
 
     const avgVotesPerAct = totales.contabilizadas > 0 ? totalVotosEmitidos / totales.contabilizadas : 0;
@@ -419,6 +503,82 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reconActasContabilizadas) reconActasContabilizadas.textContent = formatNumber(totales.contabilizadas);
     if (reconActasObservadas) reconActasObservadas.textContent = formatNumber(totales.enviadasJee || 0);
     if (reconActasFaltantes) reconActasFaltantes.textContent = formatNumber(totales.pendientesJee || 0);
+
+    // ==========================================
+    // CÁLCULO DE PROYECCIÓN POR IMPUTACIÓN GEOGRÁFICA
+    // ==========================================
+
+    let projResult = runGeographicImputationProjection(regiones, totales, fpData, jpData);
+
+    if (!projResult) {
+      // Fallback a promedio nacional si no hay datos de regiones todavía
+      const expectedTotalValidos = pctContabilizadas > 0 ? votosValidosSum / (pctContabilizadas / 100) : votosValidosSum;
+      projResult = {
+        fpProjPct: pctFP,
+        jpProjPct: pctJP,
+        votesFPProj: Math.round(expectedTotalValidos * (pctFP / 100)),
+        votesJPProj: Math.round(expectedTotalValidos * (pctJP / 100)),
+        pocketDepto: "Calculando..."
+      };
+    }
+
+    const fpProjPct = projResult.fpProjPct;
+    const jpProjPct = projResult.jpProjPct;
+    const votesFPProj = projResult.votesFPProj;
+    const votesJPProj = projResult.votesJPProj;
+
+    let projWinner = "Empate Técnico";
+    let projWinnerColor = "var(--text-muted)";
+    if (fpProjPct > jpProjPct + 0.05) {
+      projWinner = "Keiko Fujimori";
+      projWinnerColor = "var(--color-fp)";
+    } else if (jpProjPct > fpProjPct + 0.05) {
+      projWinner = "Roberto Sánchez";
+      projWinnerColor = "var(--color-jp)";
+    }
+
+    if (projWinnerName) {
+      projWinnerName.textContent = projWinner;
+      projWinnerName.style.color = projWinnerColor;
+    }
+    if (projPctFp) projPctFp.textContent = `${fpProjPct.toFixed(3)}%`;
+    if (projVotesFp) projVotesFp.textContent = formatNumber(votesFPProj);
+    if (projPctJp) projPctJp.textContent = `${jpProjPct.toFixed(3)}%`;
+    if (projVotesJp) projVotesJp.textContent = formatNumber(votesJPProj);
+    if (projPendingPocket) {
+      projPendingPocket.textContent = projResult.pocketDepto;
+    }
+
+    // Renderizar gráfico de dona CanvasJS para la proyección al 100%
+    if (projCanvasjsContainer) {
+      projCanvasjsContainer.style.height = "160px";
+      projCanvasjsContainer.style.width = "100%";
+      const projChart = new CanvasJS.Chart(projCanvasjsContainer, {
+        animationEnabled: false,
+        backgroundColor: "transparent",
+        title: {
+          text: ""
+        },
+        toolTip: {
+          fontFamily: "Inter",
+          fontSize: 11,
+          content: "{name}: <strong>{y}%</strong>"
+        },
+        data: [{
+          type: "doughnut",
+          startAngle: 270,
+          innerRadius: "70%",
+          radius: "95%",
+          indexLabel: "",
+          yValueFormatString: "##.000'%'",
+          dataPoints: [
+            { y: fpProjPct, name: "FP (Keiko)", color: "#f37021" },
+            { y: jpProjPct, name: "JP (Roberto)", color: "#c8302a" }
+          ]
+        }]
+      });
+      projChart.render();
+    }
 
     // ==========================================
     // RENDERIZAR PESTAÑA 2: PARTICIPACIÓN CIUDADANA
@@ -579,125 +739,124 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Buscar rango de porcentajes para ajustar el zoom del gráfico
     const allVals = points.flatMap(p => [p.fp, p.jp]);
-    const minVal = Math.min(...allVals) - 0.4;
-    const maxVal = Math.max(...allVals) + 0.4;
+    const minVal = Math.max(0, Math.min(...allVals) - 0.25);
+    const maxVal = Math.min(100, Math.max(...allVals) + 0.25);
 
-    const svgWidth = 800;
-    const svgHeight = 270;
-    const paddingLeft = 55;
-    const paddingRight = 95;
-    const paddingTop = 25;
-    const paddingBottom = 45;
+    const fpDataPoints = points.map(p => ({
+      x: p.progress,
+      y: p.fp,
+      label: p.label
+    }));
 
-    const plotWidth = svgWidth - paddingLeft - paddingRight;
-    const plotHeight = svgHeight - paddingTop - paddingBottom;
+    const jpDataPoints = points.map(p => ({
+      x: p.progress,
+      y: p.jp,
+      label: p.label
+    }));
 
-    const getX = (progress) => {
-      return paddingLeft + ((progress - 10) / (pctContabilizadas - 10)) * plotWidth;
-    };
+    // Configurar dimensiones del contenedor para CanvasJS
+    container.style.height = "320px";
+    container.style.width = "100%";
 
-    const getY = (val) => {
-      return paddingTop + ((maxVal - val) / (maxVal - minVal)) * plotHeight;
-    };
-
-    // Crear líneas de fondo (Grid horizontal)
-    let gridLines = '';
-    const linesCount = 5;
-    for (let i = 0; i < linesCount; i++) {
-      const val = minVal + (i / (linesCount - 1)) * (maxVal - minVal);
-      const yPos = getY(val);
-      gridLines += `
-        <line x1="${paddingLeft}" y1="${yPos}" x2="${svgWidth - paddingRight}" y2="${yPos}" stroke="rgba(15, 23, 42, 0.05)" stroke-width="1" stroke-dasharray="4,4" />
-        <text x="${paddingLeft - 10}" y="${yPos + 4}" font-family="var(--font-title)" font-size="10" font-weight="700" fill="var(--text-muted)" text-anchor="end">${val.toFixed(1)}%</text>
-      `;
-    }
-
-    // Líneas verticales de progreso en X con etiquetas de dos líneas (Hora y % Actas)
-    points.forEach((p) => {
-      const xPos = getX(p.progress);
-      gridLines += `
-        <line x1="${xPos}" y1="${paddingTop}" x2="${xPos}" y2="${svgHeight - paddingBottom}" stroke="rgba(15, 23, 42, 0.025)" stroke-width="1" />
-        <text x="${xPos}" y="${svgHeight - paddingBottom + 16}" font-family="var(--font-body)" font-size="9.5" font-weight="800" fill="var(--text-primary)" text-anchor="middle">${p.label}</text>
-        <text x="${xPos}" y="${svgHeight - paddingBottom + 27}" font-family="var(--font-mono)" font-size="8.5" font-weight="600" fill="var(--text-muted)" text-anchor="middle">${p.progress.toFixed(0)}% actas</text>
-      `;
+    const chart = new CanvasJS.Chart(container, {
+      animationEnabled: false,
+      zoomEnabled: true,
+      theme: "light2",
+      backgroundColor: "transparent",
+      title: {
+        text: "Trayectoria y Convergencia del Voto (%)",
+        fontSize: 16,
+        fontFamily: "Inter",
+        fontWeight: "bold",
+        fontColor: "#0f172a",
+        padding: 10
+      },
+      axisX: {
+        title: "Progreso de Actas Computadas",
+        titleFontFamily: "Inter",
+        titleFontSize: 11,
+        titleFontWeight: "bold",
+        titleFontColor: "#475569",
+        labelFontFamily: "Inter",
+        labelFontSize: 10,
+        valueFormatString: "#0'%'",
+        suffix: "%",
+        gridThickness: 1,
+        gridColor: "rgba(15, 23, 42, 0.05)",
+        tickColor: "rgba(15, 23, 42, 0.1)"
+      },
+      axisY: {
+        title: "Porcentaje de Votos Válidos",
+        titleFontFamily: "Inter",
+        titleFontSize: 11,
+        titleFontWeight: "bold",
+        titleFontColor: "#475569",
+        labelFontFamily: "Inter",
+        labelFontSize: 10,
+        valueFormatString: "##.00'%'",
+        suffix: "%",
+        minimum: minVal,
+        maximum: maxVal,
+        gridThickness: 1,
+        gridColor: "rgba(15, 23, 42, 0.05)",
+        lineThickness: 1,
+        lineColor: "rgba(15, 23, 42, 0.1)",
+        tickColor: "rgba(15, 23, 42, 0.1)"
+      },
+      toolTip: {
+        shared: true,
+        fontFamily: "Inter",
+        fontSize: 12,
+        contentFormatter: function (e) {
+          let str = `<div style="padding: 4px; font-family: Inter;">`;
+          str += `<strong style="color: #475569; font-size: 11px;">Avance Actas: ${e.entries[0].dataPoint.x.toFixed(3)}% (${e.entries[0].dataPoint.label})</strong><br/>`;
+          for (let i = 0; i < e.entries.length; i++) {
+            const temp = e.entries[i];
+            str += `<span style="color: ${temp.dataSeries.color}; font-weight: bold;">${temp.dataSeries.name}: ${temp.dataPoint.y.toFixed(3)}%</span><br/>`;
+          }
+          str += `</div>`;
+          return str;
+        }
+      },
+      legend: {
+        cursor: "pointer",
+        fontFamily: "Inter",
+        fontSize: 11,
+        fontWeight: "bold",
+        verticalAlign: "top",
+        horizontalAlign: "center",
+        dockInsidePlotArea: false,
+        itemclick: function (e) {
+          if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+          } else {
+            e.dataSeries.visible = true;
+          }
+          e.chart.render();
+        }
+      },
+      data: [{
+        type: "spline",
+        showInLegend: true,
+        name: "Keiko Fujimori (FP)",
+        markerType: "circle",
+        markerSize: 6,
+        color: "#f37021",
+        lineThickness: 3,
+        dataPoints: fpDataPoints
+      },
+      {
+        type: "spline",
+        showInLegend: true,
+        name: "Roberto Sánchez (JP)",
+        markerType: "circle",
+        markerSize: 6,
+        color: "#c8302a",
+        lineThickness: 3,
+        dataPoints: jpDataPoints
+      }]
     });
-
-    // Trazar los caminos de las curvas
-    let fpPath = '';
-    let jpPath = '';
-
-    points.forEach((p, idx) => {
-      const x = getX(p.progress);
-      const yFP = getY(p.fp);
-      const yJP = getY(p.jp);
-
-      if (idx === 0) {
-        fpPath = `M ${x} ${yFP}`;
-        jpPath = `M ${x} ${yJP}`;
-      } else {
-        fpPath += ` L ${x} ${yFP}`;
-        jpPath += ` L ${x} ${yJP}`;
-      }
-    });
-
-    // Dibujar los nodos (puntos) y las etiquetas finales
-    let nodes = '';
-    points.forEach((p, idx) => {
-      const x = getX(p.progress);
-      const yFP = getY(p.fp);
-      const yJP = getY(p.jp);
-      const isLast = idx === points.length - 1;
-
-      // Círculo Fuerza Popular
-      nodes += `
-        <circle cx="${x}" cy="${yFP}" r="${isLast ? 6 : 4.5}" fill="#ffffff" stroke="var(--color-fp)" stroke-width="${isLast ? 3.5 : 2.5}" />
-      `;
-      // Círculo Juntos por el Perú
-      nodes += `
-        <circle cx="${x}" cy="${yJP}" r="${isLast ? 6 : 4.5}" fill="#ffffff" stroke="var(--color-jp)" stroke-width="${isLast ? 3.5 : 2.5}" />
-      `;
-
-      // Etiquetas del resultado actual al final de las líneas
-      if (isLast) {
-        // Evitar solapamiento alineando las etiquetas verticalmente según quién va primero
-        const fpLabelOffset = (yFP < yJP) ? -6 : 14;
-        const jpLabelOffset = (yJP < yFP) ? -6 : 14;
-
-        nodes += `
-          <text x="${x + 12}" y="${yFP + fpLabelOffset}" font-family="var(--font-title)" font-size="11" font-weight="850" fill="var(--color-fp)">FP: ${p.fp.toFixed(3)}%</text>
-          <text x="${x + 12}" y="${yJP + jpLabelOffset}" font-family="var(--font-title)" font-size="11" font-weight="850" fill="var(--color-jp)">JP: ${p.jp.toFixed(3)}%</text>
-        `;
-      }
-    });
-
-    const svgHTML = `
-      <svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="evolution-svg" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glow-fp" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="var(--color-fp)" flood-opacity="0.22" />
-          </filter>
-          <filter id="glow-jp" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="var(--color-jp)" flood-opacity="0.22" />
-          </filter>
-        </defs>
-        
-        <!-- Cuadrícula e indicadores -->
-        ${gridLines}
-
-        <!-- Línea base eje X -->
-        <line x1="${paddingLeft}" y1="${svgHeight - paddingBottom}" x2="${svgWidth - paddingRight}" y2="${svgHeight - paddingBottom}" stroke="rgba(15, 23, 42, 0.08)" stroke-width="1.5" stroke-linecap="round" />
-        <text x="${svgWidth - paddingRight + 12}" y="${svgHeight - paddingBottom + 4}" font-family="var(--font-title)" font-size="9" font-weight="800" fill="var(--text-muted)">TIEMPO / AVANCE</text>
-
-        <!-- Trazados -->
-        <path d="${fpPath}" fill="none" stroke="var(--color-fp)" stroke-width="3" filter="url(#glow-fp)" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="${jpPath}" fill="none" stroke="var(--color-jp)" stroke-width="3" filter="url(#glow-jp)" stroke-linecap="round" stroke-linejoin="round" />
-
-        <!-- Nodos y etiquetas finales -->
-        ${nodes}
-      </svg>
-    `;
-
-    container.innerHTML = svgHTML;
+    chart.render();
   }
 
   // Carga dinámica de ubigeos (Llamados proxy)
